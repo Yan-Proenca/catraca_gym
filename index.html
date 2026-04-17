@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catraca Inteligente - Tablet Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap");
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+      .key-active:active {
+        transform: scale(0.95);
+        background-color: #e2e8f0;
+      }
+    </style>
+  </head>
+  <body
+    id="bg-screen"
+    class="min-h-screen bg-gradient-to-br from-emerald-100 via-emerald-200 to-white flex items-center justify-center p-4 transition-all duration-500"
+  >
+    <!-- Card principal com estilo glassmorphism (igual ao bem_vindo.html) -->
+    <div
+      class="max-w-md w-full rounded-[2rem] border border-emerald-200 bg-white/80 p-8 shadow-2xl shadow-emerald-300/20 backdrop-blur-sm transition-all duration-300"
+    >
+      <!-- Cabeçalho com ícone -->
+      <div class="text-center mb-6">
+        <div class="flex justify-center mb-3">
+          <i class="fas fa-dumbbell text-emerald-600 text-4xl"></i>
+        </div>
+        <h1 class="text-emerald-900 font-extrabold text-2xl tracking-wider uppercase">
+          Controle de Acesso
+        </h1>
+        <p class="text-emerald-700 text-sm mt-1 font-medium">Digite seu CPF para entrar</p>
+      </div>
+
+      <!-- Display do CPF -->
+      <div class="mb-8">
+        <div
+          id="cpf-display"
+          class="bg-white border-2 border-emerald-200 rounded-2xl p-6 text-center text-3xl font-bold tracking-[0.2em] text-emerald-800 h-20 flex items-center justify-center shadow-inner"
+        >
+          ___.___.___-__
+        </div>
+      </div>
+
+      <!-- Teclado Numérico -->
+      <div class="grid grid-cols-3 gap-4">
+        <button
+          onclick="pressKey('1')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          1
+        </button>
+        <button
+          onclick="pressKey('2')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          2
+        </button>
+        <button
+          onclick="pressKey('3')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          3
+        </button>
+
+        <button
+          onclick="pressKey('4')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          4
+        </button>
+        <button
+          onclick="pressKey('5')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          5
+        </button>
+        <button
+          onclick="pressKey('6')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          6
+        </button>
+
+        <button
+          onclick="pressKey('7')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          7
+        </button>
+        <button
+          onclick="pressKey('8')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          8
+        </button>
+        <button
+          onclick="pressKey('9')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          9
+        </button>
+
+        <button
+          onclick="clearCpf()"
+          class="h-16 rounded-2xl bg-amber-50 text-amber-600 text-xl font-bold key-active hover:bg-amber-100 transition-all"
+        >
+          <i class="fas fa-backspace"></i>
+        </button>
+        <button
+          onclick="pressKey('0')"
+          class="h-16 rounded-2xl bg-emerald-50 text-2xl font-bold text-emerald-800 key-active hover:bg-emerald-100 transition-all"
+        >
+          0
+        </button>
+        <button
+          onclick="validarAcesso()"
+          id="btn-ok"
+          class="h-16 rounded-2xl bg-emerald-600 text-white text-xl font-bold shadow-xl shadow-emerald-500/30 active:scale-95 transition-all hover:bg-emerald-700"
+        >
+          OK
+        </button>
+      </div>
+
+      <!-- Área de Feedback (Mensagens pro usuário) -->
+      <div
+        id="feedback-area"
+        class="mt-8 text-center min-h-[3rem] flex items-center justify-center font-bold text-lg"
+      ></div>
+      
+      <!-- Footer -->
+      <div class="mt-6 pt-4 text-center border-t border-emerald-100">
+        <span
+          class="text-emerald-500 text-[10px] uppercase font-bold tracking-widest"
+          >Sistema de Segurança v2.0</span
+        >
+      </div>
+    </div>
+
+    <script>
+      let cpfData = "";
+      const API_URL = "https://academia-backend-nine.vercel.app/catraca";
+      
+      let idleTimer = null;
+
+      // Atualiza o display do CPF com máscara
+      function updateDisplay() {
+        const display = document.getElementById("cpf-display");
+        if (cpfData.length === 0) {
+          display.innerText = "___.___.___-__";
+          display.classList.add("text-emerald-300");
+          display.classList.remove("text-emerald-800");
+        } else {
+          display.classList.remove("text-emerald-300");
+          display.classList.add("text-emerald-800");
+          let formatted = cpfData.padEnd(11, "_");
+          formatted = formatted.replace(
+            /(\d{3})(\d{3})(\d{3})(\d{2})/,
+            "$1.$2.$3-$4",
+          );
+          display.innerText = formatted;
+        }
+      }
+
+      function pressKey(num) {
+        if (cpfData.length < 11) {
+          cpfData += num;
+          updateDisplay();
+          resetUI();
+        }
+      }
+
+      function clearCpf() {
+        cpfData = "";
+        updateDisplay();
+        resetUI();
+      }
+
+      // Reseta a interface para o estado padrão (cores originais)
+      function resetUI() {
+        const bg = document.getElementById("bg-screen");
+        bg.style.transition = "0.3s";
+        bg.className = "min-h-screen bg-gradient-to-br from-emerald-100 via-emerald-200 to-white flex items-center justify-center p-4 transition-all duration-500";
+        document.getElementById("feedback-area").innerHTML = "";
+      }
+
+      // Validação básica do CPF no front
+      function validarCpfFront(cpf) {
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        let soma = 0, resto;
+        for (let i = 1; i <= 9; i++)
+          soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.substring(9, 10))) return false;
+        soma = 0;
+        for (let i = 1; i <= 10; i++)
+          soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.substring(10, 11))) return false;
+        return true;
+      }
+
+      // Função principal de validação de acesso
+      async function validarAcesso() {
+        const btn = document.getElementById("btn-ok");
+        const feedback = document.getElementById("feedback-area");
+        const bg = document.getElementById("bg-screen");
+
+        // 1. Validações de entrada
+        if (cpfData.length !== 11) {
+          showFeedback("Digite o CPF completo", "error");
+          return;
+        }
+
+        if (!validarCpfFront(cpfData)) {
+          showFeedback("CPF inválido", "error");
+          return;
+        }
+
+        // Desabilita botão e mostra loading
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cpf: cpfData }),
+          });
+
+          const data = await response.json();
+
+          // Aplica transição suave
+          bg.style.transition = "0.3s";
+          
+          // ==================================================
+          // LÓGICA ATUALIZADA: LIBERADO, BLOQUEADO ou NEGADO
+          // ==================================================
+          
+          // CASO 1: ACESSO LIBERADO (Status 200 e status "LIBERADO")
+          if (response.status === 200 && data.status === "LIBERADO") {
+            // Mensagem de sucesso estilizada
+            if (feedback) {
+              feedback.innerHTML = `<span class="text-emerald-700 bg-emerald-100 px-4 py-2 rounded-full"><i class="fas fa-check-circle mr-2"></i> ✅ Bora treinar, campeão! Acesso: LIBERADO</span>`;
+            }
+            // Fundo verde sucesso
+            bg.className = "min-h-screen bg-green-400 flex flex-col items-center justify-center p-4 transition-all duration-500";
+            
+            // Redireciona para a página de boas-vindas após 2 segundos
+            setTimeout(() => {
+              window.location.href = "bem_vindo.html";
+            }, 2000);
+          } 
+          // CASO 2: CPF BLOQUEADO PELO ADM (Status 403 e status "BLOQUEADO")
+          else if (response.status === 403 && data.status === "BLOQUEADO") {
+            if (feedback) {
+              feedback.innerHTML = `<span class="text-red-700 bg-red-100 px-4 py-2 rounded-full"><i class="fas fa-ban mr-2"></i> 🚫 CPF BLOQUEADO! Procure o administrador.</span>`;
+            }
+            // Fundo vermelho de bloqueio
+            bg.className = "min-h-screen bg-red-400 flex flex-col items-center justify-center p-4 transition-all duration-500";
+          } 
+          // CASO 3: ACESSO NEGADO (Outros erros, ex: 401, mensagem de não autorizado)
+          else {
+            let motivo = data.motivo || "Acesso negado";
+            if (feedback) {
+              feedback.innerHTML = `<span class="text-orange-700 bg-orange-100 px-4 py-2 rounded-full"><i class="fas fa-times-circle mr-2"></i> ⚠️ ${motivo}</span>`;
+            }
+            // Fundo laranja/amarelo para acesso negado
+            bg.className = "min-h-screen bg-orange-300 flex flex-col items-center justify-center p-4 transition-all duration-500";
+          }
+          
+        } catch (error) {
+          console.error('Erro ao processar CPF:', error);
+          bg.style.transition = "0.3s";
+          if (feedback) {
+            feedback.innerHTML = `<span class="text-red-700 bg-red-100 px-4 py-2 rounded-full"><i class="fas fa-exclamation-triangle mr-2"></i> Erro de conexão com o servidor!</span>`;
+          }
+          bg.className = "min-h-screen bg-red-400 flex flex-col items-center justify-center p-4 transition-all duration-500";
+        } finally {
+          // Reativa o botão e restaura o texto
+          btn.disabled = false;
+          btn.innerText = "OK";
+          
+          // Se NÃO for sucesso (liberado), reseta a tela após 4 segundos
+          // Se for sucesso, o redirecionamento já vai acontecer, então não precisa resetar aqui.
+          // Vamos verificar se o redirecionamento não vai ocorrer.
+          // Uma forma simples: se não mudou a URL, reseta.
+          setTimeout(() => {
+            // Só reseta se ainda estiver na mesma página (não redirecionou)
+            if (window.location.pathname.includes("index.html") || window.location.pathname === "/") {
+              resetUI();
+              clearCpf(); // Limpa o CPF do display
+            }
+          }, 4000);
+        }
+      }
+
+      // Função auxiliar para feedback rápido (erros de validação local)
+      function showFeedback(msg, type) {
+        const area = document.getElementById("feedback-area");
+        if (type === "success") {
+          area.innerHTML = `<span class="text-emerald-700 bg-emerald-100 px-4 py-2 rounded-full"><i class="fas fa-check-circle mr-2"></i> ${msg}</span>`;
+        } else {
+          area.innerHTML = `<span class="text-red-700 bg-red-100 px-4 py-2 rounded-full"><i class="fas fa-times-circle mr-2"></i> ${msg}</span>`;
+        }
+        // Limpa o feedback sozinho após 3 segundos se não for uma ação de API
+        setTimeout(() => {
+          if (area.innerHTML.includes(msg)) {
+            area.innerHTML = "";
+          }
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
