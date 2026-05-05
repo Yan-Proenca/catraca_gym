@@ -17,11 +17,6 @@ Projeto desenvolvido por:
 * **Teclado Numérico Otimizado:** Criado para facilitar a digitação em telas touch.
 * **Máscara de CPF:** Formatação automática (000.000.000-00) durante a digitação.
 * **Validação de Algoritmo:** Verifica o dígito verificador do CPF localmente antes de consultar a API.
-* **Feedback por Cores:**
-    * 🟩 **Verde:** Acesso Liberado e redirecionamento.
-    * 🟧 **Laranja:** Acesso Negado (pendências ou não encontrado).
-    * 🟥 **Vermelho:** CPF Bloqueado ou erro de conexão.
-
 ---
 
 ## 🛠️ Tecnologias Utilizadas
