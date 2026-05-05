@@ -262,11 +262,17 @@
           } 
           // CASO 2: CPF BLOQUEADO PELO ADM (Status 403 e status "BLOQUEADO")
           // CASO 2: CPF BLOQUEADO PELO ADM (versão mais discreta)
+          // CASO 2: CPF BLOQUEADO PELO ADM (versão discreta e educada)
           else if (response.status === 403 && data.status === "BLOQUEADO") {
             if (feedback) {
-              feedback.innerHTML = `<span class="text-amber-800 bg-amber-100 px-4 py-2 rounded-full"><i class="fas fa-ban mr-2"></i> CPF BLOQUEADO</span>`;
+              feedback.innerHTML = `
+                <span class="text-amber-800 bg-amber-100 px-5 py-3 rounded-2xl text-base leading-tight">
+                  <i class="fas fa-ban mr-2"></i>
+                  CPF BLOQUEADO<br>
+                  <span class="text-sm font-medium">Consulte a administração</span>
+                </span>`;
             }
-            // Fundo âmbar suave (menos chamativo)
+            // Fundo âmbar suave (menos constrangedor)
             bg.className = "min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4 transition-all duration-500";
           }
           // CASO 3: ACESSO NEGADO (Outros erros, ex: 401, mensagem de não autorizado)
