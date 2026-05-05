@@ -261,13 +261,14 @@
             }, 2000);
           } 
           // CASO 2: CPF BLOQUEADO PELO ADM (Status 403 e status "BLOQUEADO")
+          // CASO 2: CPF BLOQUEADO PELO ADM (versão mais discreta)
           else if (response.status === 403 && data.status === "BLOQUEADO") {
             if (feedback) {
-              feedback.innerHTML = `<span class="text-red-700 bg-red-100 px-4 py-2 rounded-full"><i class="fas fa-ban mr-2"></i> 🚫 CPF BLOQUEADO! Procure o administrador.</span>`;
+              feedback.innerHTML = `<span class="text-amber-800 bg-amber-100 px-4 py-2 rounded-full"><i class="fas fa-ban mr-2"></i> CPF BLOQUEADO</span>`;
             }
-            // Fundo vermelho de bloqueio
-            bg.className = "min-h-screen bg-red-400 flex flex-col items-center justify-center p-4 transition-all duration-500";
-          } 
+            // Fundo âmbar suave (menos chamativo)
+            bg.className = "min-h-screen bg-amber-100 flex flex-col items-center justify-center p-4 transition-all duration-500";
+          }
           // CASO 3: ACESSO NEGADO (Outros erros, ex: 401, mensagem de não autorizado)
           else {
             let motivo = data.motivo || "Acesso negado";
@@ -275,7 +276,7 @@
               feedback.innerHTML = `<span class="text-orange-700 bg-orange-100 px-4 py-2 rounded-full"><i class="fas fa-times-circle mr-2"></i> ⚠️ ${motivo}</span>`;
             }
             // Fundo laranja/amarelo para acesso negado
-            bg.className = "min-h-screen bg-orange-300 flex flex-col items-center justify-center p-4 transition-all duration-500";
+            bg.className = "min-h-screen bg-orange-100 flex flex-col items-center justify-center p-4 transition-all duration-500";
           }
           
         } catch (error) {
